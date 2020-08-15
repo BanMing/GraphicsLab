@@ -4,5 +4,6 @@
         "*.wxss": "css",
         "*.wxs": "javascript",
         "string": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/graphics_homework/Assignment2/code"
 }
