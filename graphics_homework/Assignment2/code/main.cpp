@@ -12,10 +12,10 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
     Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
 
     Eigen::Matrix4f translate;
-    translate << 1,0,0,-eye_pos[0],
-                 0,1,0,-eye_pos[1],
-                 0,0,1,-eye_pos[2],
-                 0,0,0,1;
+    translate << 1, 0, 0, -eye_pos[0],
+        0, 1, 0, -eye_pos[1],
+        0, 0, 1, -eye_pos[2],
+        0, 0, 0, 1;
 
     view = translate*view;
 
@@ -33,7 +33,35 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float z
     // TODO: Copy-paste your implementation from the previous assignment.
     Eigen::Matrix4f projection;
 
-    return projection;
+    float n =-zNear;
+    float f =-zFar;
+    Eigen::Matrix4f perspective_to_orthographic;
+    perspective_to_orthographic<<n, 0, 0, 0,
+        0, n, 0, 0,
+        0, 0, n+f, -f*n,
+        0, 0, 0, f;
+
+    float t = std::abs(n)*std::tan(0.5f* (eye_fov*MY_PI)/180);
+    float b=-t;
+    float r =t*aspect_ratio;
+    float l =-r;
+
+    Eigen::Matrix4f move_to_center;
+    move_to_center<<1, 0, 0, -(r-l)/2,
+        0, 1, 0, -(t-b)/2,
+        0, 0, 1, -(n-f)/2,
+        0, 0, 0, 1;
+
+    Eigen::Matrix4f scale_to_cube;
+    scale_to_cube<< 2/(r-l), 0, 0, 0,
+        0, 2/(t-b), 0, 0,
+        0, 0, 2/(n-f), 0,
+        0, 0, 0, 1;
+
+    projection=move_to_center*scale_to_cube;
+
+    return projection*perspective_to_orthographic;
+    // return projection;
 }
 
 int main(int argc, const char** argv)
@@ -50,34 +78,34 @@ int main(int argc, const char** argv)
 
     rst::rasterizer r(700, 700);
 
-    Eigen::Vector3f eye_pos = {0,0,5};
+    Eigen::Vector3f eye_pos ={ 0, 0, 5 };
 
 
     std::vector<Eigen::Vector3f> pos
-            {
-                    {2, 0, -2},
-                    {0, 2, -2},
-                    {-2, 0, -2},
-                    {3.5, -1, -5},
-                    {2.5, 1.5, -5},
-                    {-1, 0.5, -5}
-            };
+    {
+        { 2, 0, -2 },
+        { 0, 2, -2 },
+        { -2, 0, -2 },
+        { 3.5, -1, -5 },
+        { 2.5, 1.5, -5 },
+        { -1, 0.5, -5 }
+    };
 
     std::vector<Eigen::Vector3i> ind
-            {
-                    {0, 1, 2},
-                    {3, 4, 5}
-            };
+    {
+        { 0, 1, 2 },
+        { 3, 4, 5 }
+    };
 
     std::vector<Eigen::Vector3f> cols
-            {
-                    {217.0, 238.0, 185.0},
-                    {217.0, 238.0, 185.0},
-                    {217.0, 238.0, 185.0},
-                    {185.0, 217.0, 238.0},
-                    {185.0, 217.0, 238.0},
-                    {185.0, 217.0, 238.0}
-            };
+    {
+        { 217.0, 238.0, 185.0 },
+        { 217.0, 238.0, 185.0 },
+        { 217.0, 238.0, 185.0 },
+        { 185.0, 217.0, 238.0 },
+        { 185.0, 217.0, 238.0 },
+        { 185.0, 217.0, 238.0 }
+    };
 
     auto pos_id = r.load_positions(pos);
     auto ind_id = r.load_indices(ind);
@@ -104,7 +132,7 @@ int main(int argc, const char** argv)
         return 0;
     }
 
-    while(key != 27)
+    while (key != 27)
     {
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
 
