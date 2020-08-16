@@ -33,18 +33,18 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float z
     // TODO: Copy-paste your implementation from the previous assignment.
     Eigen::Matrix4f projection;
 
-    float n =-zNear;
-    float f =-zFar;
+    float n = -zNear;
+    float f = -zFar;
     Eigen::Matrix4f perspective_to_orthographic;
     perspective_to_orthographic<<n, 0, 0, 0,
         0, n, 0, 0,
         0, 0, n+f, -f*n,
         0, 0, 0, f;
 
-    float t = std::abs(n)*std::tan(0.5f* (eye_fov*MY_PI)/180);
-    float b=-t;
-    float r =t*aspect_ratio;
-    float l =-r;
+    float t = std::abs(n)*std::tan(0.5f* (eye_fov*MY_PI)/180.0f);
+    float b = -t;
+    float r = t*aspect_ratio;
+    float l = -r;
 
     Eigen::Matrix4f move_to_center;
     move_to_center<<1, 0, 0, -(r-l)/2,
@@ -58,9 +58,15 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float z
         0, 0, 2/(n-f), 0,
         0, 0, 0, 1;
 
-    projection=move_to_center*scale_to_cube;
+    Eigen::Matrix4f orthographic;
+    orthographic << 2/(r-l), 0, 0, -(r-l)/2,
+        0, 2/(t-b), 0, -(t-b)/2,
+        0, 0, 2/(n-f), -(n-f)/2,
+        0, 0, 0, 1;
 
-    return projection*perspective_to_orthographic;
+    // projection = move_to_center*scale_to_cube;
+
+    return projection*orthographic;
     // return projection;
 }
 
