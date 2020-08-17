@@ -46,22 +46,22 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float z
     float r = t*aspect_ratio;
     float l = -r;
 
-    Eigen::Matrix4f move_to_center;
-    move_to_center<<1, 0, 0, -(r-l)/2,
-        0, 1, 0, -(t-b)/2,
-        0, 0, 1, -(n-f)/2,
-        0, 0, 0, 1;
+    // Eigen::Matrix4f move_to_center;
+    // move_to_center<<1, 0, 0, -(r-l)/2,
+    //     0, 1, 0, -(t-b)/2,
+    //     0, 0, 1, -(n-f)/2,
+    //     0, 0, 0, 1;
 
-    Eigen::Matrix4f scale_to_cube;
-    scale_to_cube<< 2/(r-l), 0, 0, 0,
-        0, 2/(t-b), 0, 0,
-        0, 0, 2/(n-f), 0,
-        0, 0, 0, 1;
+    // Eigen::Matrix4f scale_to_cube;
+    // scale_to_cube<< 2/(r-l), 0, 0, 0,
+    //     0, 2/(t-b), 0, 0,
+    //     0, 0, 2/(n-f), 0,
+    //     0, 0, 0, 1;
 
     Eigen::Matrix4f orthographic;
-    orthographic << 2/(r-l), 0, 0, -(r-l)/2,
-        0, 2/(t-b), 0, -(t-b)/2,
-        0, 0, 2/(n-f), -(n-f)/2,
+    orthographic << 2 / (r - l), 0, 0, -(r + l) / (r - l),
+        0, 2 / (t - b), 0, -(t + b) / (t - b),
+        0, 0, 2 / (n - f), -(n + f) / (n - f),
         0, 0, 0, 1;
 
     // projection = move_to_center*scale_to_cube;
