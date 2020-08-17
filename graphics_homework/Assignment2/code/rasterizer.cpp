@@ -96,7 +96,7 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
         {
             vert.x() = 0.5 * width * (vert.x() + 1.0);
             vert.y() = 0.5 * height * (vert.y() + 1.0);
-            vert.z() = vert.z() * f1 + f2;
+            vert.z() = -vert.z() * f1 + f2;
         }
 
         for (int i = 0; i < 3; ++i)
@@ -122,7 +122,6 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
 void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     auto v = t.toVector4();
 
-    // TODO : Find out the bounding box of current triangle.
     // iterate through the pixel and find if the current pixel is inside the triangle
     std::array<float, 4> boundingBox; // x->left x->right y->top y -> bottom
     boundingBox = { 0, 0, 0, 0 };
@@ -130,16 +129,10 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     {
         boundingBox[0] = point.x() < boundingBox[0] ? point.x() : boundingBox[0];
         boundingBox[1] = point.x() > boundingBox[1] ? point.x() : boundingBox[1];
-        boundingBox[2] = point.y() > boundingBox[2] ? point.y() : boundingBox[2];
-        boundingBox[3] = point.y() < boundingBox[3] ? point.y() : boundingBox[3];
+        boundingBox[2] = point.y() < boundingBox[2] ? point.y() : boundingBox[2];
+        boundingBox[3] = point.y() > boundingBox[3] ? point.y() : boundingBox[3];
     }
-
-
-    // If so, use the following code to get the interpolated z value.
-    //auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
-    //float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
-    //float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
-    //z_interpolated *= w_reciprocal;
+    // std::cout << boundingBox[0] << "|" << boundingBox[1] << "|" << boundingBox[2] << "|" << boundingBox[3] << std::endl;
 
     for (float x = boundingBox[0]; x <= boundingBox[1]; x++)
     {
@@ -147,25 +140,23 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
         {
             if (insideTriangle(x, y, t.v))
             {
+                // If so, use the following code to get the interpolated z value.
                 auto [alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
                 float w_reciprocal = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
                 float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
                 z_interpolated *= w_reciprocal;
 
                 int index = get_index(x, y);
-                if (z_interpolated <= depth_buf[index])
+                if (z_interpolated < depth_buf[index])
                 {
                     Eigen::Vector3f point(x, y, 1.f);
-                    set_pixel(point, t.getColor());
                     depth_buf[index] = z_interpolated;
+                    set_pixel(point, t.getColor());
                 }
             }
 
         }
-
     }
-
-    // TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
 }
 
 void rst::rasterizer::set_model(const Eigen::Matrix4f& m)

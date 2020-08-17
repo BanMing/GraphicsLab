@@ -17,7 +17,7 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
         0, 0, 1, -eye_pos[2],
         0, 0, 0, 1;
 
-    view = translate*view;
+    view = translate * view;
 
     return view;
 }
@@ -31,43 +31,40 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
 Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float zNear, float zFar)
 {
     // TODO: Copy-paste your implementation from the previous assignment.
-    Eigen::Matrix4f projection;
+    // Eigen::Matrix4f projection;
 
     float n = -zNear;
     float f = -zFar;
-    Eigen::Matrix4f perspective_to_orthographic;
-    perspective_to_orthographic<<n, 0, 0, 0,
-        0, n, 0, 0,
-        0, 0, n+f, -f*n,
-        0, 0, 0, f;
-
-    float t = std::abs(n)*std::tan(0.5f* (eye_fov*MY_PI)/180.0f);
+    float t = std::abs(n) * std::tan(0.5f * (eye_fov * MY_PI / 180.f));
     float b = -t;
-    float r = t*aspect_ratio;
+    float r = aspect_ratio * t;
     float l = -r;
 
-    // Eigen::Matrix4f move_to_center;
-    // move_to_center<<1, 0, 0, -(r-l)/2,
-    //     0, 1, 0, -(t-b)/2,
-    //     0, 0, 1, -(n-f)/2,
+    Eigen::Matrix4f perspective;
+    perspective << n, 0, 0, 0,
+        0, n, 0, 0,
+        0, 0, n + f, -n * f,
+        0, 0, 1, 0;
+
+    // Eigen::Matrix4f translate;
+    // translate << 1, 0, 0, -(r + l) / 2.f,
+    //     0, 1, 0, -(t + b) / 2.f,
+    //     0, 0, 1, -(n + f) / 2.f,
     //     0, 0, 0, 1;
 
-    // Eigen::Matrix4f scale_to_cube;
-    // scale_to_cube<< 2/(r-l), 0, 0, 0,
-    //     0, 2/(t-b), 0, 0,
-    //     0, 0, 2/(n-f), 0,
+    // Eigen::Matrix4f scale_to_canonical;
+    // scale_to_canonical << 2.f / (r - l), 0, 0, 0,
+    //     0, 2.f / (t - b), 0, 0,
+    //     0, 0, 2.f / (n - f), 0,
     //     0, 0, 0, 1;
 
-    Eigen::Matrix4f orthographic;
-    orthographic << 2 / (r - l), 0, 0, -(r + l) / (r - l),
+    Eigen::Matrix4f orthograhic;
+    orthograhic << 2 / (r - l), 0, 0, -(r + l) / (r - l),
         0, 2 / (t - b), 0, -(t + b) / (t - b),
         0, 0, 2 / (n - f), -(n + f) / (n - f),
         0, 0, 0, 1;
 
-    // projection = move_to_center*scale_to_cube;
-
-    return projection*orthographic;
-    // return projection;
+    return orthograhic * perspective;
 }
 
 int main(int argc, const char** argv)
@@ -84,7 +81,7 @@ int main(int argc, const char** argv)
 
     rst::rasterizer r(700, 700);
 
-    Eigen::Vector3f eye_pos ={ 0, 0, 5 };
+    Eigen::Vector3f eye_pos = { 0, 0, 5 };
 
 
     std::vector<Eigen::Vector3f> pos
@@ -154,7 +151,7 @@ int main(int argc, const char** argv)
         cv::imshow("image", image);
         key = cv::waitKey(10);
 
-        std::cout << "frame count: " << frame_count++ << '\n';
+        // std::cout << "frame count: " << frame_count++ << '\n';
     }
 
     return 0;
