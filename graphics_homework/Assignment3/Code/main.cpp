@@ -279,12 +279,13 @@ int main(int argc, const char** argv)
     float angle = 140.0;
     bool command_line = false;
 
-    std::string filename = "output.png";
+    std::string filename = "../graphics_homework/Assignment3/Output/";
     objl::Loader Loader;
-    std::string obj_path = "../models/spot/";
+    std::string obj_path = "../graphics_homework/Assignment3/Code/models/spot/";
+    std::cout << obj_path << std::endl;
 
     // Load .obj File
-    bool loadout = Loader.LoadFile("../models/spot/spot_triangulated_good.obj");
+    bool loadout = Loader.LoadFile("../graphics_homework/Assignment3/Code/models/spot/spot_triangulated_good.obj");
     for (auto mesh : Loader.LoadedMeshes)
     {
         for (int i = 0; i < mesh.Vertices.size(); i += 3)
@@ -310,8 +311,8 @@ int main(int argc, const char** argv)
     if (argc >= 2)
     {
         command_line = true;
-        filename = std::string(argv[1]);
-
+        // filename = std::string(argv[1]);
+        filename += std::string(argv[2]) + ".png";
         if (argc == 3 && std::string(argv[2]) == "texture")
         {
             std::cout << "Rasterizing using the texture shader\n";
