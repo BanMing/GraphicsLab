@@ -8,14 +8,13 @@
             "name": "clang++ - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "build/Rasterizer",
+            "program": "${workspaceFolder}/build/Rasterizer",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "C/C++: clang++ build active file"
         }
     ]
 }

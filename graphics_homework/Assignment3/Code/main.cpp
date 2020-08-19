@@ -312,7 +312,7 @@ int main(int argc, const char** argv)
     {
         command_line = true;
         // filename = std::string(argv[1]);
-        filename += std::string(argv[2]) + ".png";
+        filename += (std::string(argv[2]) + ".png");
         if (argc == 3 && std::string(argv[2]) == "texture")
         {
             std::cout << "Rasterizing using the texture shader\n";

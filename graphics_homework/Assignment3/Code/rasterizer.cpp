@@ -267,18 +267,20 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
     //    * zp is depth between zNear and zFar, used for z-buffer
 
     auto v = t.toVector4();
-    std::vector boundBoxing = { 0, 0, 0, 0 };
+    std::vector boundingBox = { 0, 0, 0, 0 };
     for (auto point : v)
     {
-        boundBoxing[0] = point.x() < boundBoxing[0] ? point.x() : boundBoxing[0];
-        boundBoxing[1] = point.x() > boundBoxing[1] ? point.x() : boundBoxing[1];
-        boundBoxing[2] = point.y() < boundBoxing[2] ? point.y() : boundBoxing[2];
-        boundBoxing[3] = point.y() < boundBoxing[3] ? point.y() : boundBoxing[3];
+        boundingBox[0] = point.x() < boundingBox[0] ? point.x() : boundingBox[0];
+        boundingBox[1] = point.x() > boundingBox[1] ? point.x() : boundingBox[1];
+        boundingBox[2] = point.y() < boundingBox[2] ? point.y() : boundingBox[2];
+        boundingBox[3] = point.y() > boundingBox[3] ? point.y() : boundingBox[3];
     }
+    // std::cout << boundingBox[0] << "|" << boundingBox[1] << "|" << boundingBox[2] << "|" << boundingBox[3] << std::endl;
 
-    for (float x = boundBoxing[0]; x < boundBoxing[1]; x++)
+
+    for (float x = boundingBox[0]; x <= boundingBox[1]; x++)
     {
-        for (float y = boundBoxing[2]; y < boundBoxing[3]; y++)
+        for (float y = boundingBox[2]; y < boundingBox[3]; y++)
         {
             if (insideTriangle(x, y, t.v))
             {
@@ -290,7 +292,6 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
                 int index = get_index(x, y);
                 if (zp < depth_buf[index])
                 {
-
                     auto interpolated_color = interpolate(alpha, beta, gamma, t.color[0], t.color[1], t.color[2], 1);
                     auto interpolated_normal = interpolate(alpha, beta, gamma, t.normal[0], t.normal[1], t.normal[2], 1);
                     auto interpolated_texcoords = interpolate(alpha, beta, gamma, t.tex_coords[0], t.tex_coords[1], t.tex_coords[2], 1);
@@ -306,17 +307,6 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
             }
         }
     }
-
-    // TODO: Interpolate the attributes:
-    // auto interpolated_color
-    // auto interpolated_normal
-    // auto interpolated_texcoords
-    // auto interpolated_shadingcoords
-
-    // Use: fragment_shader_payload payload( interpolated_color, interpolated_normal.normalized(), interpolated_texcoords, texture ? &*texture : nullptr);
-    // Use: payload.view_pos = interpolated_shadingcoords;
-    // Use: Instead of passing the triangle's color directly to the frame buffer, pass the color to the shaders first to get the final color;
-    // Use: auto pixel_color = fragment_shader(payload);
 }
 
 void rst::rasterizer::set_model(const Eigen::Matrix4f& m)
