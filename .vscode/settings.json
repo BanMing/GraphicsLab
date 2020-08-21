@@ -82,5 +82,5 @@
         "memory_resource": "cpp",
         "cinttypes": "cpp"
     },
-    "cmake.sourceDirectory": "${workspaceFolder}/graphics_homework/Assignment3/code"
+    "cmake.sourceDirectory": "${workspaceFolder}/graphics_homework/Assignment4/code"
 }

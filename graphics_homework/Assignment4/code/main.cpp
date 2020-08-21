@@ -26,7 +26,7 @@ void naive_bezier(const std::vector<cv::Point2f> &points, cv::Mat &window)
         auto point = std::pow(1 - t, 3) * p_0 + 3 * t * std::pow(1 - t, 2) * p_1 +
                      3 * std::pow(t, 2) * (1 - t) * p_2 + std::pow(t, 3) * p_3;
 
-        window.at<cv::Vec3b>(point.y, point.x)[2] = 255;
+        window.at<cv::Vec3b>((int)point.y, (int)point.x)[2] = 255;
     }
 }
 
@@ -37,40 +37,40 @@ cv::Point2f recursive_bezier(const std::vector<cv::Point2f> &control_points, flo
     {
         return control_points[0];
     }
-    // std::vector<cv::Point2f> points(control_points.begain(), control_points.end());
-    // std::vector<cv::Point2f> newPoints;
+    std::vector<cv::Point2f> points(control_points.begin(), control_points.end());
+    std::vector<cv::Point2f> newPoints;
 
-    // while (points.size() > 1)
-    // {
-    //     for (size_t i = 1; i < points.size(); i++)
-    //     {
-    //         cv::Point2f newPoint = (1 - t) point[i - 1] + t * point[i];
-    //         // cv::Point2f newPoint = ((points[i] - point[i - 1]).dis * t) * (points[i] - points[i - 1]) + point[i - 1];
-    //         newPoints.push_back(newPoint);
-    //     }
-    //     points.clear();
-    //     points.insert(points.end(), newPoints.begain(), newPoints.end());
-    //     newPoint.clear();
-    // }
-    int n = control_points.size();
-    cv::Point2f point;
-    for (size_t i = 0; i < n; i++)
+    while (points.size() > 1)
     {
-        point += std::pow(t, i) * std::pow((1 - t), n - i);
+        for (size_t i = 1; i < points.size(); i++)
+        {
+            cv::Point2f newPoint = (1 - t) * points[i - 1] + t * points[i];
+            // cv::Point2f newPoint = ((points[i] - point[i - 1]).dis * t) * (points[i] - points[i - 1]) + point[i - 1];
+            newPoints.push_back(newPoint);
+        }
+        points.clear();
+        points.insert(points.end(), newPoints.begin(), newPoints.end());
+        newPoints.clear();
     }
+    // size_t n = control_points.size() - 1;
+    // cv::Point2f point = control_points[0] * std::pow((1 - t), n);
+    // for (size_t i = 1; i < control_points.size(); i++)
+    // {
+    //     point += control_points[i] * std::pow(t, i) * std::pow((1 - t), (n - i)) ;
+    // }
 
-    return point;
+    return points[0];
 }
 
 void bezier(const std::vector<cv::Point2f> &control_points, cv::Mat &window)
 {
     // TODO: Iterate through all t = 0 to t = 1 with small steps, and call de Casteljau's
     // recursive Bezier algorithm.
-    for (double t = 0.0; t <= 1.0; t += 0.001)
+    for (float t = 0.0; t <= 1.0; t += 0.001f)
     {
         auto point = recursive_bezier(control_points, t);
 
-        window.at<cv::Vec3b>(point.y, point.x)[2] = 255;
+        window.at<cv::Vec3b>((int)point.y, (int)point.x)[2] = 255;
     }
 }
 
@@ -92,8 +92,8 @@ int main()
 
         if (control_points.size() == 4)
         {
-            naive_bezier(control_points, window);
-            //   bezier(control_points, window);
+            // naive_bezier(control_points, window);
+            bezier(control_points, window);
 
             cv::imshow("Bezier Curve", window);
             cv::imwrite("my_bezier_curve.png", window);

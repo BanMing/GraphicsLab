@@ -5,6 +5,8 @@ find_package(OpenCV REQUIRED)
 
 set(CMAKE_CXX_STANDARD 14)
 
+include_directories(C:/opencv/build/include/opencv2)
+
 add_executable(BezierCurve main.cpp)
 
 target_link_libraries(BezierCurve ${OpenCV_LIBRARIES})

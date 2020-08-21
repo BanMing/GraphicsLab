@@ -5,6 +5,8 @@
             "includePath": [
                 "/usr/local/include",
                 "/usr/local/Cellar/opencv/4.2.0_1/include",
+                "C:/opencv/build/include/opencv2",
+                "C:/opencv/build/include",
                 "${workspaceFolder}/**"
             ],
             "defines": [],
