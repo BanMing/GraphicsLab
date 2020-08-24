@@ -50,16 +50,17 @@ Eigen::Matrix4f get_model_matrix(float angle)
 Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float zNear, float zFar)
 {
     // TODO: Use the same projection matrix from the previous assignments
-    float n = -zNear;
-    float f = -zFar;
+    // http://games-cn.org/forums/topic/作业三的牛倒过来了/
+    float n = zNear;
+    float f = zFar;
     float t = std::abs(n) * std::tan(0.5f * (eye_fov * MY_PI / 180.f));
     float b = -t;
     float r = aspect_ratio * t;
     float l = -r;
 
     Eigen::Matrix4f perspective;
-    perspective << n, 0, 0, 0,
-        0, n, 0, 0,
+    perspective << -n, 0, 0, 0,
+        0, -n, 0, 0,
         0, 0, n + f, -n * f,
         0, 0, 1, 0;
 
@@ -186,10 +187,10 @@ Eigen::Vector3f phong_fragment_shader(const fragment_shader_payload &payload)
 
         Eigen::Vector3f ambient = ka.cwiseProduct(amb_light_intensity);
         Eigen::Vector3f diffuse = kd.cwiseProduct(I_r2) * std::max(0.f, n.dot(l));
-        float r_square = pow(light.position.x() - point.x(), 2) +
-                         pow(light.position.y() - point.y(), 2) +
-                         pow(light.position.z() - point.z(), 2);
-        Eigen::Vector3f specular = ks.cwiseProduct(light.intensity / r_square) * pow(std::max(0.f, n.dot(h)), p);
+        // float r_square = pow(light.position.x() - point.x(), 2) +
+        //                  pow(light.position.y() - point.y(), 2) +
+        //                  pow(light.position.z() - point.z(), 2);
+        Eigen::Vector3f specular = ks.cwiseProduct(I_r2) * pow(std::max(0.f, n.dot(h)), p);
 
         result_color += ambient + specular + diffuse;
     }
@@ -295,7 +296,7 @@ int main(int argc, const char **argv)
 {
     std::vector<Triangle *> TriangleList;
 
-    float angle = 40.0;
+    float angle = 140.0;
     bool command_line = false;
 
     std::string filename = "output.png";
