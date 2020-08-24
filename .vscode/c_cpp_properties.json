@@ -7,6 +7,7 @@
                 "/usr/local/Cellar/opencv/4.2.0_1/include",
                 "C:/opencv/build/include/opencv2",
                 "C:/opencv/build/include",
+                "C:/lib",
                 "${workspaceFolder}/**"
             ],
             "defines": [],

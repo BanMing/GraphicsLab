@@ -9,7 +9,7 @@
             "name": "(Windows) Launch",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/BezierCurve.exe",
+            "program": "${workspaceFolder}/build/Debug/Rasterizer.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
