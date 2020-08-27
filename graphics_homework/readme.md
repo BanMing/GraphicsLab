@@ -27,3 +27,6 @@ vscode在mac下的智能提示和报错问题，
         ],
         "version": 4
     }
+    
+    ray-tracing:
+    https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays
