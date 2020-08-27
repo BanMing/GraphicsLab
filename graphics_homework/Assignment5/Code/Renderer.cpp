@@ -234,17 +234,32 @@ void Renderer::Render(const Scene &scene)
         for (int i = 0; i < scene.width; ++i)
         {
             // generate primary ray direction
-            float x = i - scene.width / 2;
-            float y = j - scene.height / 2;
+            // float x = i - scene.width / 2;
+            // float y = j - scene.height / 2;
             // TODO: Find the x and y positions of the current pixel to get the direction
             // vector that passes through it.
             // Also, don't forget to multiply both of them with the variable *scale*, and
             // x (horizontal) variable with the *imageAspectRatio*
-            x *= 2 * scale * imageAspectRatio / scene.width;
-            y *= -2 * scale / scene.height;
+            // x *= 2 * scale * imageAspectRatio / scene.width;
+            // y *= -2 * scale / scene.height;
 
-            Vector3f dir = Vector3f(x, y, -1); // Don't forget to normalize this direction!
-            dir = normalize(dir - eye_pos);
+            // Vector3f dir = Vector3f(x, y, -1); // Don't forget to normalize this direction!
+            // dir = normalize(dir - eye_pos);
+
+            // ndc [0,1]
+            float ndcPixelx = (0.5f + i) / (scene.width * 1.f);
+            float ndcPixely = (0.5f + j) / (scene.height * 1.f);
+
+            // screen [-1,1],keep y > 0
+            float screenPixelx = 2 * ndcPixelx - 1;
+            float screenPixely = 1 - 2 * ndcPixely;
+
+            // camera
+            float tanFov = (float)tan(scene.fov / 2 * M_PI / 180);
+            float cameraPixelx = screenPixelx * imageAspectRatio * tanFov;
+            float cameraPixely = screenPixely * tanFov;
+
+            Vector3f dir = normalize(Vector3f(cameraPixelx * scale, cameraPixely * scale, -1) - eye_pos);
             framebuffer[m++] = castRay(eye_pos, dir, scene, 0);
         }
         UpdateProgress(j / (float)scene.height);
