@@ -246,15 +246,18 @@ void Renderer::Render(const Scene &scene)
             // Vector3f dir = Vector3f(x, y, -1); // Don't forget to normalize this direction!
             // dir = normalize(dir - eye_pos);
 
-            // ndc [0,1]
+            // ndc [0,1] normalized device coordinates
             float ndcPixelx = (0.5f + i) / (scene.width * 1.f);
             float ndcPixely = (0.5f + j) / (scene.height * 1.f);
 
-            // screen [-1,1],keep y > 0
+            // screen [-1,1],keep y > 0  
+            // screen orgin is the center 
+            // ndc、raster orgin is the left-top
             float screenPixelx = 2 * ndcPixelx - 1;
             float screenPixely = 1 - 2 * ndcPixely;
 
-            // camera
+            // world space
+            // camera-to-world matrix
             float tanFov = (float)tan(scene.fov / 2 * M_PI / 180);
             float cameraPixelx = screenPixelx * imageAspectRatio * tanFov;
             float cameraPixely = screenPixely * tanFov;
