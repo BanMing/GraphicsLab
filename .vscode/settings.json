@@ -100,5 +100,5 @@
         "xutility": "cpp",
         "alignedvector3": "cpp"
     },
-    "cmake.sourceDirectory": "${workspaceFolder}/graphics_homework/Assignment6/Code"
+    "cmake.sourceDirectory": "${workspaceFolder}/graphics_homework/Assignment6"
 }

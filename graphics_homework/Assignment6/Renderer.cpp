@@ -34,12 +34,12 @@ void Renderer::Render(const Scene &scene)
             //  vector that passes through it.
             // Also, don't forget to multiply both of them with the variable
             // *scale*, and x (horizontal) variable with the *imageAspectRatio*
-            float tanFov = tanf(scene.fov / 2 / 180 * M_PI);
-            x *= tanFov;
-            y *= tanFov;
+            // float tanFov = tanf(scene.fov / 2 / 180 * M_PI);
+            // x *= tanFov;
+            // y *= tanFov;
 
             // Don't forget to normalize this direction!
-            Vector3f dir = normalize(Vector3f(x, y, -1) - eye_pos);
+            Vector3f dir = normalize(Vector3f(x, y, -1) );
 
             framebuffer[m++] = scene.castRay(Ray(eye_pos, dir), 0);
         }

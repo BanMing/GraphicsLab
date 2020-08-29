@@ -11,7 +11,7 @@
 
 class Bounds3
 {
-  public:
+public:
     Vector3f pMin, pMax; // two points to specify the bounding box
     Bounds3()
     {
@@ -49,9 +49,9 @@ class Bounds3
     Bounds3 Intersect(const Bounds3& b)
     {
         return Bounds3(Vector3f(fmax(pMin.x, b.pMin.x), fmax(pMin.y, b.pMin.y),
-                                fmax(pMin.z, b.pMin.z)),
-                       Vector3f(fmin(pMax.x, b.pMax.x), fmin(pMax.y, b.pMax.y),
-                                fmin(pMax.z, b.pMax.z)));
+            fmax(pMin.z, b.pMin.z)),
+            Vector3f(fmin(pMax.x, b.pMax.x), fmin(pMax.y, b.pMax.y),
+                fmin(pMax.z, b.pMax.z)));
     }
 
     Vector3f Offset(const Vector3f& p) const
@@ -77,7 +77,7 @@ class Bounds3
     bool Inside(const Vector3f& p, const Bounds3& b)
     {
         return (p.x >= b.pMin.x && p.x <= b.pMax.x && p.y >= b.pMin.y &&
-                p.y <= b.pMax.y && p.z >= b.pMin.z && p.z <= b.pMax.z);
+            p.y <= b.pMax.y && p.z >= b.pMin.z && p.z <= b.pMax.z);
     }
     inline const Vector3f& operator[](int i) const
     {
@@ -85,18 +85,45 @@ class Bounds3
     }
 
     inline bool IntersectP(const Ray& ray, const Vector3f& invDir,
-                           const std::array<int, 3>& dirisNeg) const;
+        const std::array<int, 3>& dirisNeg) const;
 };
 
 
 
 inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir,
-                                const std::array<int, 3>& dirIsNeg) const
+    const std::array<int, 3>& dirIsNeg) const
 {
     // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster that Division
     // dirIsNeg: ray direction(x,y,z), dirIsNeg=[int(x>0),int(y>0),int(z>0)], use this to simplify your logic
     // TODO test if ray bound intersects
-    
+    float tmin = (pMin.x - ray.origin.x) * invDir.x;
+    float tmax = (pMax.x - ray.origin.x) * invDir.x;
+    if (!dirIsNeg[0])
+    {
+        std::swap(tmin, tmax);
+    }
+
+    float minY = (pMin.y - ray.origin.y) * invDir.y;
+    float maxY = (pMax.y - ray.origin.y) * invDir.y;
+    if (!dirIsNeg[1])
+    {
+        std::swap(minY, maxY);
+    }
+    tmin = std::max(tmin, minY);
+    tmax = std::min(tmax, maxY);
+
+    float minZ = (pMin.z - ray.origin.z) * invDir.z;
+    float maxZ = (pMax.z - ray.origin.z) * invDir.z;
+    if (!dirIsNeg[2])
+    {
+        std::swap(minZ, maxZ);
+    }
+
+    float tenter = std::max(tmin, minZ);
+    float texit = std::min(tmax, maxZ);
+
+    return (tenter < texit&& texit>0) || (tenter < 0 && texit>0);
+
 }
 
 inline Bounds3 Union(const Bounds3& b1, const Bounds3& b2)
