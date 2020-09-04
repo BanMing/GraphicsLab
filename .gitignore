@@ -1,1 +1,4 @@
 build/
+/d3dx12/d3dx12/Debug
+/d3dx12/Debug
+d3dx12/.vs/
