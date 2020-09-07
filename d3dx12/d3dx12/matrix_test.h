@@ -7,8 +7,8 @@ using namespace std;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
+ostream& XM_CALLCONV operator<<(ostream& os, FXMVECTOR v);
 
-//ostream& XM_CALLCONV operator<<(ostream& os, FXMVECTOR v);
-void vectorTest();
-void vectorMethodTest();
-void vectorNumbericalTest();
+ostream& XM_CALLCONV operator<< (ostream& os, FXMMATRIX m);
+
+void martixTest();

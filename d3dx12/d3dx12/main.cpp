@@ -1,11 +1,12 @@
 #include<iostream>
-#include"vector_test.h"
+#include"matrix_test.h"
 
 int main()
 {
 	std::cout << "Test" << std::endl;
 	//vectorTest();
 	//vectorMethodTest();
-	vectorNumbericalTest();
+	//vectorNumbericalTest();
+	martixTest();
 	return 0;
 }

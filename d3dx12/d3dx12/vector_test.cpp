@@ -3,13 +3,13 @@
 
 /*Overload the "<<" operators so that we can use cout to
 output XMVECTOP objects.*/
-ostream& XM_CALLCONV operator<<(ostream& os, FXMVECTOR v)
-{
-	XMFLOAT3 dest;
-	XMStoreFloat3(&dest, v);
-	os << "(" << dest.x << "," << dest.y << "," << dest.z << ")";
-	return os;
-}
+//ostream& XM_CALLCONV operator<<(ostream& os, FXMVECTOR v)
+//{
+//	XMFLOAT3 dest;
+//	XMStoreFloat3(&dest, v);
+//	os << "(" << dest.x << "," << dest.y << "," << dest.z << ")";
+//	return os;
+//}
 
 
 void vectorTest()
@@ -28,11 +28,11 @@ void vectorTest()
 	XMVECTOR v = XMVectorReplicate(-2.f);
 	XMVECTOR w = XMVectorSplatZ(u);
 
-	cout << "p = " << p << endl;
+	/*cout << "p = " << p << endl;
 	cout << "q = " << q << endl;
 	cout << "u = " << u << endl;
 	cout << "v = " << v << endl;
-	cout << "w = " << w << endl;
+	cout << "w = " << w << endl;*/
 
 }
 
@@ -87,22 +87,23 @@ void vectorMethodTest()
 	float angleRadians = XMVectorGetX(angleVec);
 	float angleDegrees = XMConvertToDegrees(angleRadians);
 
-	cout << "u = " << u << endl;
-	cout << "v = " << v << endl;
-	cout << "w = " << w << endl;
-	cout << "n = " << n << endl;
-	cout << "a = u + v = " << a << endl;
-	cout << "b = u - v = " << b << endl;
-	cout << "c = 10 * u = " << c << endl;
-	cout << "d = u / ||u || = " << d << endl;
-	cout << "e = u x v = " << e << endl;
-	cout << "L = || u || = " << L << endl;
-	cout << "s = u.v = " << s << endl;
-	cout << "projW = " << projW << endl;
-	cout << "perpW = " << perpW << endl;
-	cout << "projW + perpW == w = " << equal << endl;
-	cout << "projW + perpW != w = " << notEqual << endl;
-	cout << "angle = " << angleDegrees << endl;
+	//cout << "u = " << u << endl;
+	//cout << "v = " << v << endl;
+	//cout << "w = " << w << endl;
+	//cout << "n = " << n << endl;
+	//cout << "a = u + v = " << a << endl;
+	//cout << "b = u - v = " << b << endl;
+	//cout << "c = 10 * u = " << c << endl;
+	//cout << "d = u / ||u || = " << d << endl;
+	//cout << "e = u x v = " << e << endl;
+	//cout << "L = || u || = " << L << endl;
+	//cout << "s = u.v = " << s << endl;
+	//cout << "projW = " << projW << endl;
+	//cout << "perpW = " << perpW << endl;
+	//cout << "projW + perpW == w = " << equal << endl;
+	//cout << "projW + perpW != w = " << notEqual << endl;
+	//cout << "angle = " << angleDegrees << endl;
+
 }
 
 void vectorNumbericalTest()
