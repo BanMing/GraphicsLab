@@ -1,6 +1,6 @@
-﻿#include "../Common/d3dApp.h"
-#include "../Common/MathHelper.h"
-#include "../Common/UploadBuffer.h"
+﻿#include "../../Common/d3dApp.h"
+#include "../../Common/MathHelper.h"
+#include "../../Common/UploadBuffer.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -79,7 +79,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	}
 	catch (DxException& e)
 	{
-		//MessageBox(nullptr, e.ToString().c_str(), L"HRFailed", MB_OK);
+		MessageBox(nullptr, e.ToString().c_str(), L"HRFailed", MB_OK);
 		return 0;
 	}
 }
@@ -90,6 +90,32 @@ BoxApp::BoxApp(HINSTANCE hInstance) : D3DApp(hInstance)
 
 BoxApp::~BoxApp()
 {
+}
+
+bool BoxApp::Initialize()
+{
+	if (!D3DApp::Initialize())
+		return false;
+
+	// Reset the command list to prep for initialization commands.
+	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
+
+	BuildDescriptorHeaps();
+	BuildConstantBuffers();
+	BuildRootSignature();
+	BuildShadersAndInputLayout();
+	BuildBoxGeometry();
+	BuildPSO();
+
+	// Execute the initialization commands.
+	ThrowIfFailed(mCommandList->Close());
+	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
+	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	// Wait until initialization is complete.
+	FlushCommandQueue();
+
+	return true;
 }
 
 void BoxApp::OnResize()
