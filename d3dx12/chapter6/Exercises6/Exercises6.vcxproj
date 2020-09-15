@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8C334EAD-F671-40FD-BE19-F4621D78F7F1}</ProjectGuid>
+    <ProjectGuid>{2968E816-3B70-45B2-BF4D-044272CE92DE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Box</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>

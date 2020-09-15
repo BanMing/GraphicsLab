@@ -7,43 +7,36 @@ using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
-//struct Vertex
-//{
-//	XMFLOAT3 Pos;
-//	XMFLOAT4 Color;
-//};
-struct VPosData
+struct Vertex
 {
 	XMFLOAT3 Pos;
-};
-
-struct VColorData
-{
 	XMFLOAT4 Color;
 };
+
 struct ObjectConstants
 {
 	XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+	float time = 0;
 };
 
 class BoxApp : public D3DApp
 {
 public:
 	BoxApp(HINSTANCE hInstance);
-	BoxApp(const BoxApp &rhs) = delete;
-	BoxApp &operator=(const BoxApp &rhs) = delete;
+	BoxApp(const BoxApp& rhs) = delete;
+	BoxApp& operator=(const BoxApp& rhs) = delete;
 	~BoxApp();
 
-	virtual bool Initialize() override;
+	virtual bool Initialize()override;
 
 private:
-	virtual void OnResize() override;
-	virtual void Update(const GameTimer &gt) override;
-	virtual void Draw(const GameTimer &gt) override;
+	virtual void OnResize()override;
+	virtual void Update(const GameTimer& gt)override;
+	virtual void Draw(const GameTimer& gt)override;
 
-	virtual void OnMouseDown(WPARAM btnState, int x, int y) override;
-	virtual void OnMouseUp(WPARAM btnState, int x, int y) override;
-	virtual void OnMouseMove(WPARAM btnState, int x, int y) override;
+	virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
+	virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
+	virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
 
 	void BuildDescriptorHeaps();
 	void BuildConstantBuffers();
@@ -53,6 +46,7 @@ private:
 	void BuildPSO();
 
 private:
+
 	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
 
@@ -71,18 +65,15 @@ private:
 	XMFLOAT4X4 mView = MathHelper::Identity4x4();
 	XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
-	float mTheta = 1.5f * XM_PI;
+	float mTheta = 1.5f*XM_PI;
 	float mPhi = XM_PIDIV4;
 	float mRadius = 5.0f;
 
 	POINT mLastMousePos;
-
-	//D3D12_VERTEX_BUFFER_VIEW mVertexColorBufferView;
-	Microsoft::WRL::ComPtr<ID3D12Resource> mVertexColorBufferGPU = nullptr;
-	UINT mVColorbByteSize;
 };
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
+	PSTR cmdLine, int showCmd)
 {
 	// Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
@@ -97,7 +88,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
 		return theApp.Run();
 	}
-	catch (DxException &e)
+	catch (DxException& e)
 	{
 		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
 		return 0;
@@ -130,7 +121,7 @@ bool BoxApp::Initialize()
 
 	// Execute the initialization commands.
 	ThrowIfFailed(mCommandList->Close());
-	ID3D12CommandList *cmdsLists[] = { mCommandList.Get() };
+	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// Wait until initialization is complete.
@@ -144,15 +135,15 @@ void BoxApp::OnResize()
 	D3DApp::OnResize();
 
 	// The window resized, so update the aspect ratio and recompute the projection matrix.
-	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
+	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 	XMStoreFloat4x4(&mProj, P);
 }
 
-void BoxApp::Update(const GameTimer &gt)
+void BoxApp::Update(const GameTimer& gt)
 {
 	// Convert Spherical to Cartesian coordinates.
-	float x = mRadius * sinf(mPhi) * cosf(mTheta);
-	float z = mRadius * sinf(mPhi) * sinf(mTheta);
+	float x = mRadius * sinf(mPhi)*cosf(mTheta);
+	float z = mRadius * sinf(mPhi)*sinf(mTheta);
 	float y = mRadius * cosf(mPhi);
 
 	// Build the view matrix.
@@ -165,15 +156,16 @@ void BoxApp::Update(const GameTimer &gt)
 
 	XMMATRIX world = XMLoadFloat4x4(&mWorld);
 	XMMATRIX proj = XMLoadFloat4x4(&mProj);
-	XMMATRIX worldViewProj = world * view * proj;
+	XMMATRIX worldViewProj = world * view*proj;
 
 	// Update the constant buffer with the latest worldViewProj matrix.
 	ObjectConstants objConstants;
 	XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+	objConstants.time = mTimer.TotalTime();
 	mObjectCB->CopyData(0, objConstants);
 }
 
-void BoxApp::Draw(const GameTimer &gt)
+void BoxApp::Draw(const GameTimer& gt)
 {
 	// Reuse the memory associated with command recording.
 	// We can only reset when the associated command lists have finished execution on the GPU.
@@ -197,24 +189,20 @@ void BoxApp::Draw(const GameTimer &gt)
 	// Specify the buffers we are going to render to.
 	mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
-	ID3D12DescriptorHeap *descriptorHeaps[] = { mCbvHeap.Get() };
+	ID3D12DescriptorHeap* descriptorHeaps[] = { mCbvHeap.Get() };
 	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
 	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
 	mCommandList->IASetVertexBuffers(0, 1, &mBoxGeo->VertexBufferView());
-	// set the color buffer
-	D3D12_VERTEX_BUFFER_VIEW vbv;
-	vbv.BufferLocation = mVertexColorBufferGPU->GetGPUVirtualAddress();
-	vbv.StrideInBytes = sizeof(VColorData);
-	vbv.SizeInBytes = mVColorbByteSize;
-	mCommandList->IASetVertexBuffers(1, 1, &vbv);
 	mCommandList->IASetIndexBuffer(&mBoxGeo->IndexBufferView());
 	mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	mCommandList->SetGraphicsRootDescriptorTable(0, mCbvHeap->GetGPUDescriptorHandleForHeapStart());
 
-	mCommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
+	mCommandList->DrawIndexedInstanced(
+		mBoxGeo->DrawArgs["box"].IndexCount,
+		1, 0, 0, 0);
 
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -224,7 +212,7 @@ void BoxApp::Draw(const GameTimer &gt)
 	ThrowIfFailed(mCommandList->Close());
 
 	// Add the command list to the queue for execution.
-	ID3D12CommandList *cmdsLists[] = { mCommandList.Get() };
+	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// swap the back and front buffers
@@ -255,8 +243,8 @@ void BoxApp::OnMouseMove(WPARAM btnState, int x, int y)
 	if ((btnState & MK_LBUTTON) != 0)
 	{
 		// Make each pixel correspond to a quarter of a degree.
-		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
-		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
+		float dx = XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
+		float dy = XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
 
 		// Update angles based on input to orbit camera around box.
 		mTheta += dx;
@@ -268,8 +256,8 @@ void BoxApp::OnMouseMove(WPARAM btnState, int x, int y)
 	else if ((btnState & MK_RBUTTON) != 0)
 	{
 		// Make each pixel correspond to 0.005 unit in the scene.
-		float dx = 0.005f * static_cast<float>(x - mLastMousePos.x);
-		float dy = 0.005f * static_cast<float>(y - mLastMousePos.y);
+		float dx = 0.005f*static_cast<float>(x - mLastMousePos.x);
+		float dy = 0.005f*static_cast<float>(y - mLastMousePos.y);
 
 		// Update the camera radius based on input.
 		mRadius += dx - dy;
@@ -319,7 +307,7 @@ void BoxApp::BuildRootSignature()
 	// textures, samplers).  The root signature defines the resources the shader
 	// programs expect.  If we think of the shader programs as a function, and
 	// the input resources as function parameters, then the root signature can be
-	// thought of as defining the function signature.
+	// thought of as defining the function signature.  
 
 	// Root parameter can be a table, root descriptor or root constants.
 	CD3DX12_ROOT_PARAMETER slotRootParameter[1];
@@ -341,7 +329,7 @@ void BoxApp::BuildRootSignature()
 
 	if (errorBlob != nullptr)
 	{
-		::OutputDebugStringA((char *)errorBlob->GetBufferPointer());
+		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 	}
 	ThrowIfFailed(hr);
 
@@ -361,14 +349,14 @@ void BoxApp::BuildShadersAndInputLayout()
 
 	mInputLayout =
 	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 }
 
 void BoxApp::BuildBoxGeometry()
 {
-	/*std::array<Vertex, 8> vertices =
+	std::array<Vertex, 8> vertices =
 	{
 		Vertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
 		Vertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
@@ -378,26 +366,6 @@ void BoxApp::BuildBoxGeometry()
 		Vertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
 		Vertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
 		Vertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
-	};*/
-	std::array<VPosData, 8> verticesPos = {
-		VPosData({XMFLOAT3(-1.0f, -1.0f, -1.0f)}),
-		VPosData({XMFLOAT3(-1.0f, +1.0f, -1.0f)}),
-		VPosData({XMFLOAT3(+1.0f, +1.0f, -1.0f)}),
-		VPosData({XMFLOAT3(+1.0f, -1.0f, -1.0f)}),
-		VPosData({XMFLOAT3(-1.0f, -1.0f, +1.0f)}),
-		VPosData({XMFLOAT3(-1.0f, +1.0f, +1.0f)}),
-		VPosData({XMFLOAT3(+1.0f, +1.0f, +1.0f)}),
-		VPosData({XMFLOAT3(+1.0f, -1.0f, +1.0f)}) };
-
-	std::array<VColorData, 8> verticesColor = {
-		VColorData({XMFLOAT4(Colors::White)}),
-		VColorData({XMFLOAT4(Colors::Black)}),
-		VColorData({XMFLOAT4(Colors::Red)}),
-		VColorData({XMFLOAT4(Colors::Green)}),
-		VColorData({XMFLOAT4(Colors::Blue)}),
-		VColorData({XMFLOAT4(Colors::Yellow)}),
-		VColorData({XMFLOAT4(Colors::Cyan)}),
-		VColorData({XMFLOAT4(Colors::Magenta)}),
 	};
 
 	std::array<std::uint16_t, 36> indices =
@@ -424,36 +392,29 @@ void BoxApp::BuildBoxGeometry()
 
 		// bottom face
 		4, 0, 3,
-		4, 3, 7 };
+		4, 3, 7
+	};
 
-	const UINT vPosbByteSize = (UINT)verticesPos.size() * sizeof(VPosData);
-	const UINT vColorbByteSize = (UINT)verticesColor.size() * sizeof(VColorData);
+	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
 	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
 	mBoxGeo = std::make_unique<MeshGeometry>();
 	mBoxGeo->Name = "boxGeo";
 
-	ThrowIfFailed(D3DCreateBlob(vPosbByteSize, &mBoxGeo->VertexBufferCPU));
-	CopyMemory(mBoxGeo->VertexBufferCPU->GetBufferPointer(), verticesPos.data(), vPosbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(vColorbByteSize, &mBoxGeo->VertexBufferCPU));
-	CopyMemory(mBoxGeo->VertexBufferCPU->GetBufferPointer(), verticesColor.data(), vColorbByteSize);
+	ThrowIfFailed(D3DCreateBlob(vbByteSize, &mBoxGeo->VertexBufferCPU));
+	CopyMemory(mBoxGeo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
 
 	ThrowIfFailed(D3DCreateBlob(ibByteSize, &mBoxGeo->IndexBufferCPU));
 	CopyMemory(mBoxGeo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
 	mBoxGeo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), verticesPos.data(), vPosbByteSize, mBoxGeo->VertexBufferUploader);
+		mCommandList.Get(), vertices.data(), vbByteSize, mBoxGeo->VertexBufferUploader);
 
-	// Save the color buffer
-	mVertexColorBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), verticesColor.data(), vColorbByteSize, mBoxGeo->VertexBufferUploader);
-	mVColorbByteSize = vColorbByteSize;
+	mBoxGeo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+		mCommandList.Get(), indices.data(), ibByteSize, mBoxGeo->IndexBufferUploader);
 
-	mBoxGeo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(), mCommandList.Get(), indices.data(), ibByteSize, mBoxGeo->IndexBufferUploader);
-
-	mBoxGeo->VertexByteStride = sizeof(VPosData);
-	mBoxGeo->VertexBufferByteSize = vPosbByteSize;
+	mBoxGeo->VertexByteStride = sizeof(Vertex);
+	mBoxGeo->VertexBufferByteSize = vbByteSize;
 	mBoxGeo->IndexFormat = DXGI_FORMAT_R16_UINT;
 	mBoxGeo->IndexBufferByteSize = ibByteSize;
 
@@ -473,12 +434,14 @@ void BoxApp::BuildPSO()
 	psoDesc.pRootSignature = mRootSignature.Get();
 	psoDesc.VS =
 	{
-		reinterpret_cast<BYTE *>(mvsByteCode->GetBufferPointer()),
-		mvsByteCode->GetBufferSize() };
+		reinterpret_cast<BYTE*>(mvsByteCode->GetBufferPointer()),
+		mvsByteCode->GetBufferSize()
+	};
 	psoDesc.PS =
 	{
-		reinterpret_cast<BYTE *>(mpsByteCode->GetBufferPointer()),
-		mpsByteCode->GetBufferSize() };
+		reinterpret_cast<BYTE*>(mpsByteCode->GetBufferPointer()),
+		mpsByteCode->GetBufferSize()
+	};
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
