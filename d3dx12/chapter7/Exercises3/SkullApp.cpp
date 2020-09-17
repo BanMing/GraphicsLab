@@ -476,12 +476,12 @@ void SkullApp::BuildConstantBufferViews()
 
 void SkullApp::BuildRootSignature()
 {
-	// ¸ù²ÎÊı¿ÉÒÔÊÇÃèÊö±í¡¢¸ùÃèÊö·û¡¢¸ù³£Á¿
-	// ´´½¨ÓÉµ¥¸öCBVËù×é³ÉµÄÃèÊö·û±í
+	// æ ¹å‚æ•°å¯ä»¥æ˜¯æè¿°è¡¨ã€æ ¹æè¿°ç¬¦ã€æ ¹å¸¸é‡
+	// åˆ›å»ºç”±å•ä¸ªCBVæ‰€ç»„æˆçš„æè¿°ç¬¦è¡¨
 	CD3DX12_DESCRIPTOR_RANGE cbvTable0;
-	cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,// ÃèÊö·ûÀàĞÍ
-		1,// ÃèÊö·ûÊıÁ¿ 
-		0);// ÃèÊö·ûËù°ó¶¨µÄ¼Ä´æÆ÷²ÛºÅ
+	cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,// æè¿°ç¬¦ç±»å‹
+		1,// æè¿°ç¬¦æ•°é‡ 
+		0);// æè¿°ç¬¦æ‰€ç»‘å®šçš„å¯„å­˜å™¨æ§½å·
 
 	CD3DX12_DESCRIPTOR_RANGE cbvTable1;
 	cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
@@ -493,13 +493,13 @@ void SkullApp::BuildRootSignature()
 	slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
 	slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
 
-	// ¸ùÇ©ÃûÓÉÒ»×é¸ù²ÎÊı¹¹³É
+	// æ ¹ç­¾åç”±ä¸€ç»„æ ¹å‚æ•°æ„æˆ
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2,// ¸ù²ÎÊıµÄÊıÁ¿
-		slotRootParameter, // ¸ù²ÎÊıÖ¸Õë
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2,// æ ¹å‚æ•°çš„æ•°é‡
+		slotRootParameter, // æ ¹å‚æ•°æŒ‡é’ˆ
 		0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-	// ÓÃµ¥¸ö¼Ä´æÆ÷²ÛÀ´´´½¨Ò»¸ö¸ùÇ©Ãû£¬¸Ã²ÛÎ»Ö¸ÏòÒ»¸ö½öº¬ÓĞµ¥¸ö³£Á¿»º³åÇøÃèÊö·ûÇøÓò
+	// ç”¨å•ä¸ªå¯„å­˜å™¨æ§½æ¥åˆ›å»ºä¸€ä¸ªæ ¹ç­¾åï¼Œè¯¥æ§½ä½æŒ‡å‘ä¸€ä¸ªä»…å«æœ‰å•ä¸ªå¸¸é‡ç¼“å†²åŒºæè¿°ç¬¦åŒºåŸŸ
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
 	ComPtr<ID3DBlob> errorBlob = nullptr;
@@ -537,7 +537,8 @@ void SkullApp::BuildShapeGeometry()
 
 	if (!fin)
 	{
-		MessageBox(0, L"Models/skull.txt not found", 0, 0);
+		MessageBox(0, L"Models/skull.txt not found.", 0, 0);
+		return;
 	}
 
 	UINT vcount = 0;
@@ -549,30 +550,34 @@ void SkullApp::BuildShapeGeometry()
 	fin >> ignore >> ignore >> ignore >> ignore;
 
 	std::vector<Vertex> vertices(vcount);
-	for (UINT i = 0; i < vcount; i++)
+	for (UINT i = 0; i < vcount; ++i)
 	{
 		fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
 		fin >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
-
-		vertices[i].TexC = { 0,0 };
+		vertices[i].Color =i%2==0? XMFLOAT4(DirectX::Colors::Blue): XMFLOAT4(DirectX::Colors::Red);
+		// Model does not have texture coordinates, so just zero them out.
+		vertices[i].TexC = { 0.0f, 0.0f };
 	}
 
 	fin >> ignore;
 	fin >> ignore;
 	fin >> ignore;
 
-	std::vector<std::int32_t>indices(3 * tcount);
-	for (UINT i = 0; i < tcount; i++)
+	std::vector<std::int32_t> indices(3 * tcount);
+	for (UINT i = 0; i < tcount; ++i)
 	{
 		fin >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
 	}
 
 	fin.close();
 
-
+	//
+	// Pack the indices of all the meshes into one index buffer.
+	//
 
 	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::int32_t);
 
 	auto geo = std::make_unique<MeshGeometry>();
 	geo->Name = "skull";
@@ -587,12 +592,11 @@ void SkullApp::BuildShapeGeometry()
 		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
 
 	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->VertexBufferUploader);
+		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
 
-
-	geo->VertexBufferByteSize = sizeof(Vertex);
+	geo->VertexByteStride = sizeof(Vertex);
 	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+	geo->IndexFormat = DXGI_FORMAT_R32_UINT;
 	geo->IndexBufferByteSize = ibByteSize;
 
 	SubmeshGeometry submesh;
@@ -617,14 +621,14 @@ void SkullApp::BuildPSOs()
 	ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	opaquePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
 	opaquePsoDesc.pRootSignature = mRootSignature.Get();
-	// ¶¥µã×ÅÉ«Æ÷
+	// é¡¶ç‚¹ç€è‰²å™¨
 	opaquePsoDesc.VS =
 	{
 		reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()),
 		mShaders["standardVS"]->GetBufferSize()
 	};
 
-	//ÏñËØ×ÅÉ«Æ÷
+	//åƒç´ ç€è‰²å™¨
 	opaquePsoDesc.PS =
 	{
 		reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()),
@@ -632,7 +636,7 @@ void SkullApp::BuildPSOs()
 	};
 	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	// »ìºÏ×´Ì¬
+	// æ··åˆçŠ¶æ€
 	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.SampleMask = UINT_MAX;
