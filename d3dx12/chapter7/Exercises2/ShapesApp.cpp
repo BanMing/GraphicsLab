@@ -253,6 +253,11 @@ void ShapesApp::Draw(const GameTimer& gt)
 
 	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
+	// 設置Root Constant`s values
+	DirectX::XMFLOAT4X4 WorldTest = MathHelper::Identity4x4();
+	XMStoreFloat4x4(&WorldTest, XMMatrixTranslation(0, 2.f, 0)*XMMatrixRotationX(0)*XMMatrixScaling(2.f, 1.f, 2.f));
+	mCommandList->SetGraphicsRoot32BitConstants(0, 16, WorldTest.m, 0);
+
 	int passCbvIndex = mPassCbvOffset + mCurrFrameResourceIndex;
 	auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
 	passCbvHandle.Offset(passCbvIndex, mCbvSrvUavDescriptorSize);
@@ -409,10 +414,12 @@ void ShapesApp::BuildDescriptorHeaps()
 
 	// Need a CBV descriptor for each object for each frame resource,
 	// +1 for the perPass CBV for each frame resource.
-	UINT numDescriptors = (objCount + 1) * gNumFrameResources;
+	//UINT numDescriptors = (objCount + 1) * gNumFrameResources;
+	UINT numDescriptors = gNumFrameResources;
 
 	// Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
-	mPassCbvOffset = objCount * gNumFrameResources;
+	//mPassCbvOffset = objCount * gNumFrameResources;
+	mPassCbvOffset = 0;
 
 	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
 	cbvHeapDesc.NumDescriptors = numDescriptors;
@@ -430,28 +437,28 @@ void ShapesApp::BuildConstantBufferViews()
 	UINT objCount = (UINT)mOpaqueRitems.size();
 
 	// Need a CBV descriptor for each object for each frame resource.
-	for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
-	{
-		auto objectCB = mFrameResources[frameIndex]->ObjectCB->Resource();
-		for (UINT i = 0; i < objCount; ++i)
-		{
-			D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
+	//for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
+	//{
+	//	auto objectCB = mFrameResources[frameIndex]->ObjectCB->Resource();
+	//	for (UINT i = 0; i < objCount; ++i)
+	//	{
+	//		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
 
-			// Offset to the ith object constant buffer in the buffer.
-			cbAddress += i * objCBByteSize;
+	//		// Offset to the ith object constant buffer in the buffer.
+	//		cbAddress += i * objCBByteSize;
 
-			// Offset to the object cbv in the descriptor heap.
-			int heapIndex = frameIndex * objCount + i;
-			auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
-			handle.Offset(heapIndex, mCbvSrvUavDescriptorSize);
+	//		// Offset to the object cbv in the descriptor heap.
+	//		int heapIndex = frameIndex * objCount + i;
+	//		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+	//		handle.Offset(heapIndex, mCbvSrvUavDescriptorSize);
 
-			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-			cbvDesc.BufferLocation = cbAddress;
-			cbvDesc.SizeInBytes = objCBByteSize;
+	//		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+	//		cbvDesc.BufferLocation = cbAddress;
+	//		cbvDesc.SizeInBytes = objCBByteSize;
 
-			md3dDevice->CreateConstantBufferView(&cbvDesc, handle);
-		}
-	}
+	//		md3dDevice->CreateConstantBufferView(&cbvDesc, handle);
+	//	}
+	//}
 
 	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
 
@@ -476,12 +483,8 @@ void ShapesApp::BuildConstantBufferViews()
 
 void ShapesApp::BuildRootSignature()
 {
-	// 根参数可以是描述表、根描述符、根常量
-	// 创建由单个CBV所组成的描述符表
-	CD3DX12_DESCRIPTOR_RANGE cbvTable0;
-	cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,// 描述符类型
-		1,// 描述符数量 
-		0);// 描述符所绑定的寄存器槽号
+	//CD3DX12_DESCRIPTOR_RANGE cbvTable0;
+	//cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE cbvTable1;
 	cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
@@ -490,16 +493,14 @@ void ShapesApp::BuildRootSignature()
 	CD3DX12_ROOT_PARAMETER slotRootParameter[2];
 
 	// Create root CBVs.
-	slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
+	slotRootParameter[0].InitAsConstants(16, 0);
+	//slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
 	slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
 
-	// 根签名由一组根参数构成
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2,// 根参数的数量
-		slotRootParameter, // 根参数指针
-		0, nullptr,D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr,
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-	// 用单个寄存器槽来创建一个根签名，该槽位指向一个仅含有单个常量缓冲区描述符区域
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
 	ComPtr<ID3DBlob> errorBlob = nullptr;
@@ -536,7 +537,15 @@ void ShapesApp::BuildShapeGeometry()
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);
 	GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
-	GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
+
+	//GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
+
+	// Exercises 1
+	//GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 0);
+	//GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 1);
+	//GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 2);
+	GeometryGenerator::MeshData sphere = geoGen.CreateGeosphere(0.5f, 3);
+
 	GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20);
 
 	//
@@ -650,7 +659,6 @@ void ShapesApp::BuildShapeGeometry()
 	mGeometries[geo->Name] = std::move(geo);
 }
 
-// PSO(PipeLine State Object)
 void ShapesApp::BuildPSOs()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
@@ -661,14 +669,11 @@ void ShapesApp::BuildPSOs()
 	ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	opaquePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
 	opaquePsoDesc.pRootSignature = mRootSignature.Get();
-	// 顶点着色器
 	opaquePsoDesc.VS =
 	{
 		reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()),
 		mShaders["standardVS"]->GetBufferSize()
 	};
-
-	//像素着色器
 	opaquePsoDesc.PS =
 	{
 		reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()),
@@ -676,7 +681,6 @@ void ShapesApp::BuildPSOs()
 	};
 	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-	// 混合状态
 	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.SampleMask = UINT_MAX;
@@ -802,11 +806,11 @@ void ShapesApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::v
 		cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
 		// Offset to the CBV in the descriptor heap for this object and for this frame resource.
-		UINT cbvIndex = mCurrFrameResourceIndex * (UINT)mOpaqueRitems.size() + ri->ObjCBIndex;
-		auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
-		cbvHandle.Offset(cbvIndex, mCbvSrvUavDescriptorSize);
+		//UINT cbvIndex = mCurrFrameResourceIndex * (UINT)mOpaqueRitems.size() + ri->ObjCBIndex;
+		//auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
+		//cbvHandle.Offset(cbvIndex, mCbvSrvUavDescriptorSize);
 
-		cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+		//cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
 
 		cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
 	}

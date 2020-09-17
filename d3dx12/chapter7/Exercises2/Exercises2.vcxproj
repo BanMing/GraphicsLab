@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3E37814D-CAE3-4405-9BEF-75166B51FC01}</ProjectGuid>
+    <ProjectGuid>{1F10AC79-C49D-4A6A-A436-211E4D0EA3B2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Shapes</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
