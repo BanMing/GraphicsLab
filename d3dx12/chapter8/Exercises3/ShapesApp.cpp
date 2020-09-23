@@ -780,7 +780,7 @@ void ShapesApp::BuildRenderItems()
 {
 	auto boxRitem = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f)*XMMatrixTranslation(0.0f, 0.5f, 0.0f));
-	XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	//XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 8.0f));
 	boxRitem->ObjCBIndex = 0;
 	boxRitem->Geo = mGeometries["shapeGeo"].get();
 	boxRitem->Mat = mMaterials["box"].get();
@@ -792,7 +792,7 @@ void ShapesApp::BuildRenderItems()
 
 	auto gridRitem = std::make_unique<RenderItem>();
 	gridRitem->World = MathHelper::Identity4x4();
-	XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
+	//XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 8.0f));
 	gridRitem->ObjCBIndex = 1;
 	gridRitem->Geo = mGeometries["shapeGeo"].get();
 	gridRitem->Mat = mMaterials["grid"].get();
@@ -803,8 +803,8 @@ void ShapesApp::BuildRenderItems()
 	mAllRitems.push_back(std::move(gridRitem));
 
 	auto skullRitem = std::make_unique<RenderItem>();
-	skullRitem->TexTransform = MathHelper::Identity4x4();
-	skullRitem->World = MathHelper::Identity4x4();
+	XMStoreFloat4x4(&skullRitem->World, XMMatrixScaling(0.3f, 0.3f, 0.3f)*XMMatrixTranslation(0.0f, 1.f, 0.0f));
+	//XMStoreFloat4x4(&skullRitem->TexTransform, XMMatrixScaling(0.3f, 0.3f, 0.3f));
 	skullRitem->ObjCBIndex = 2;
 	skullRitem->Geo = mGeometries["skullGeo"].get();
 	skullRitem->Mat = mMaterials["skullMat"].get();
@@ -814,7 +814,7 @@ void ShapesApp::BuildRenderItems()
 	skullRitem->BaseVertexLocation = skullRitem->Geo->DrawArgs["skull"].BaseVertexLocation;
 	mAllRitems.push_back(std::move(skullRitem));
 	
-	XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
+	//XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
 	UINT objCBIndex = 3;
 	for (int i = 0; i < 5; ++i)
 	{
@@ -830,7 +830,7 @@ void ShapesApp::BuildRenderItems()
 		XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
 
 		XMStoreFloat4x4(&leftCylRitem->World, rightCylWorld);
-		XMStoreFloat4x4(&leftCylRitem->TexTransform, brickTexTransform);
+		//XMStoreFloat4x4(&leftCylRitem->TexTransform, brickTexTransform);
 		leftCylRitem->ObjCBIndex = objCBIndex++;
 		leftCylRitem->Geo = mGeometries["shapeGeo"].get();
 		leftCylRitem->Mat = mMaterials["sphere"].get();
@@ -840,7 +840,7 @@ void ShapesApp::BuildRenderItems()
 		leftCylRitem->BaseVertexLocation = leftCylRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
 
 		XMStoreFloat4x4(&rightCylRitem->World, leftCylWorld);
-		XMStoreFloat4x4(&rightCylRitem->TexTransform, brickTexTransform);
+		//XMStoreFloat4x4(&rightCylRitem->TexTransform, brickTexTransform);
 		rightCylRitem->ObjCBIndex = objCBIndex++;
 		rightCylRitem->Geo = mGeometries["shapeGeo"].get();
 		rightCylRitem->Mat = mMaterials["sphere"].get();
@@ -850,7 +850,7 @@ void ShapesApp::BuildRenderItems()
 		rightCylRitem->BaseVertexLocation = rightCylRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
 
 		XMStoreFloat4x4(&leftSphereRitem->World, leftSphereWorld);
-		leftSphereRitem->TexTransform = MathHelper::Identity4x4();
+		//leftSphereRitem->TexTransform = MathHelper::Identity4x4();
 		leftSphereRitem->ObjCBIndex = objCBIndex++;
 		leftSphereRitem->Geo = mGeometries["shapeGeo"].get();
 		leftSphereRitem->Mat = mMaterials["box"].get();
@@ -860,7 +860,7 @@ void ShapesApp::BuildRenderItems()
 		leftSphereRitem->BaseVertexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
 
 		XMStoreFloat4x4(&rightSphereRitem->World, rightSphereWorld);
-		rightSphereRitem->TexTransform = MathHelper::Identity4x4();
+		//rightSphereRitem->TexTransform = MathHelper::Identity4x4();
 		rightSphereRitem->ObjCBIndex = objCBIndex++;
 		rightSphereRitem->Geo = mGeometries["shapeGeo"].get();
 		rightSphereRitem->Mat = mMaterials["box"].get();

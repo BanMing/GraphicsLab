@@ -25,6 +25,7 @@
 cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
+    float4x4 gTexTransfrom;
 };
 
 cbuffer cbMaterial : register(b1)
@@ -80,6 +81,7 @@ VertexOut VS(VertexIn vin)
 	
     // Transform to world space.
     float4 posW = mul(float4(vin.PosL, 1.0f), gWorld);
+    posW = mul(posW,gTexTransfrom);
     vout.PosW = posW.xyz;
 
     // Assumes nonuniform scaling; otherwise, need to use inverse-transpose of world matrix.
