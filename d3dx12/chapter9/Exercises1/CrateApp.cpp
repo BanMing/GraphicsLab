@@ -544,7 +544,7 @@ void CrateApp::BuildShadersAndInputLayout()
 void CrateApp::BuildShapeGeometry()
 {
     GeometryGenerator geoGen;
-	GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);
+	GeometryGenerator::MeshData box = geoGen.CreateBox(10.0f, 10.0f, 10.0f, 3);
  
 	SubmeshGeometry boxSubmesh;
 	boxSubmesh.IndexCount = (UINT)box.Indices32.size();
