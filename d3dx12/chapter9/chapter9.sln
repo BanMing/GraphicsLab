@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TexWaves", "TexWaves\TexWav
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercises1", "Exercises1\Exercises1.vcxproj", "{C8A2F1FA-1A47-40B8-A65E-0E97677E13B2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exercises2", "Exercises2\Exercises2.vcxproj", "{40F6CE1E-F363-4828-94FC-5A36C6FB32A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{C8A2F1FA-1A47-40B8-A65E-0E97677E13B2}.Release|x64.Build.0 = Release|x64
 		{C8A2F1FA-1A47-40B8-A65E-0E97677E13B2}.Release|x86.ActiveCfg = Release|Win32
 		{C8A2F1FA-1A47-40B8-A65E-0E97677E13B2}.Release|x86.Build.0 = Release|Win32
+		{40F6CE1E-F363-4828-94FC-5A36C6FB32A0}.Debug|x64.ActiveCfg = Debug|x64
+		{40F6CE1E-F363-4828-94FC-5A36C6FB32A0}.Debug|x64.Build.0 = Debug|x64
+		{40F6CE1E-F363-4828-94FC-5A36C6FB32A0}.Debug|x86.ActiveCfg = Debug|Win32
+		{40F6CE1E-F363-4828-94FC-5A36C6FB32A0}.Debug|x86.Build.0 = Debug|Win32
+		{40F6CE1E-F363-4828-94FC-5A36C6FB32A0}.Release|x64.ActiveCfg = Release|x64
+		{40F6CE1E-F363-4828-94FC-5A36C6FB32A0}.Release|x64.Build.0 = Release|x64
+		{40F6CE1E-F363-4828-94FC-5A36C6FB32A0}.Release|x86.ActiveCfg = Release|Win32
+		{40F6CE1E-F363-4828-94FC-5A36C6FB32A0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
