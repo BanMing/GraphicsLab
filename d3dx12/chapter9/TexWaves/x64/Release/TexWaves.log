@@ -1,0 +1,15 @@
+﻿  d3dApp.cpp
+c:\learn\d3d12book\common\d3dapp.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  d3dUtil.cpp
+  DDSTextureLoader.cpp
+  GameTimer.cpp
+  GeometryGenerator.cpp
+  MathHelper.cpp
+  FrameResource.cpp
+  TexWavesApp.cpp
+c:\learn\d3d12book\common\d3dapp.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  Waves.cpp
+  Generating code
+  All 2897 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  TexWaves.vcxproj -> C:\Learn\d3d12book\Chapter 9 Texturing\TexWaves\x64\Release\TexWaves.exe
