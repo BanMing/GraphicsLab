@@ -101,17 +101,22 @@ VertexOut VS(VertexIn vin)
 
     // Transform to homogeneous clip space.
     vout.PosH = mul(posW, gViewProj);
+    // 按照中心点旋转
+	// vin.TexC -= float2(0.5f, 0.5f);
 	
 	// Output vertex attributes for interpolation across triangle.
     float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
+    // texC = mul(texC, float4());
     vout.TexC = mul(texC, gMatTransform).xy;
 
+// 按照中心点旋转
+	// vin.TexC += float2(0.5, 0.5);
     return vout;
 }
 
 float4 PS(VertexOut pin) : SV_Target
 {
-    float4 diffuseAlbedo = gFlareMap.Sample(gsamAnisotropicWrap, pin.TexC) *  gFlareAlphaMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
+    float4 diffuseAlbedo = gFlareMap.Sample(gsamAnisotropicClamp, pin.TexC) *  gFlareAlphaMap.Sample(gsamAnisotropicClamp, pin.TexC) * gDiffuseAlbedo;
 
     // Interpolating normal can unnormalize it, so renormalize it.
     pin.NormalW = normalize(pin.NormalW);

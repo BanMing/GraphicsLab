@@ -360,7 +360,8 @@ void CrateApp::UpdateCamera(const GameTimer& gt)
 
 void CrateApp::AnimateMaterials(const GameTimer& gt)
 {
-
+	XMStoreFloat4x4(&mMaterials["woodCrate"]->MatTransform, XMMatrixTranslation(-0.5f, -0.5f, 0)* XMMatrixRotationZ(10*gt.TotalTime())*XMMatrixTranslation(0.5f, 0.5f, 0));
+	mMaterials["woodCrate"]->NumFramesDirty = gNumFrameResources;
 }
 
 void CrateApp::UpdateObjectCBs(const GameTimer& gt)
@@ -373,11 +374,11 @@ void CrateApp::UpdateObjectCBs(const GameTimer& gt)
 		if (e->NumFramesDirty > 0)
 		{
 			XMMATRIX world = XMLoadFloat4x4(&e->World);
-			XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
+			//XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
 
 			ObjectConstants objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
-			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+			//XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
 
 			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
