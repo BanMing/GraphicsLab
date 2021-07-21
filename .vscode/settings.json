@@ -100,5 +100,5 @@
         "xutility": "cpp",
         "alignedvector3": "cpp"
     },
-    "cmake.sourceDirectory": "${workspaceFolder}/graphics_homework/Assignment3/Code"
+    "cmake.sourceDirectory": "${workspaceFolder}/ray_tracing/oneweekend"
 }
